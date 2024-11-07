@@ -2,7 +2,9 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
+from tensorflow.keras.models import load_model
+
 import time
 
 # ****** Callbacks ******
@@ -10,6 +12,10 @@ tensorboard = TensorBoard(log_dir="logs/{}".format(time.time()),
                           histogram_freq=1,
                           write_graph=True,
                           write_images=True)
+
+checkpoint = ModelCheckpoint("best_model.keras", save_best_only=True, monitor="val_accuracy", mode="max")
+# save_best_only=True : sauvegarde seulement si le modèle améliore la métrique choisie.
+# monitor="val_accuracy" et mode="max" : surveille l’accuracy de validation et sauvegarde le modèle si elle augmente.
 
 # Exercise 1
 # Construire un MLP avec 2 couches cachées avec 200 neurones chacune et fonction d’activation de type ‘relu’ et une couche de sortie de type ‘softmax’.
@@ -74,7 +80,7 @@ y_test = to_categorical(y_test, nb_classes)
 # Modifier le code si nécessaire
 
 # Launch the learning
-model.fit(x_train, y_train, epochs=12, verbose=1, validation_split=0.1, callbacks=[tensorboard])
+model.fit(x_train, y_train, epochs=12, verbose=1, validation_split=0.1, callbacks=[tensorboard, checkpoint])
 
 # Performances evaluation on data test
 score = model.evaluate(x_test, y_test, verbose=0)
